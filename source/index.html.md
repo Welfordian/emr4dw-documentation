@@ -1,15 +1,8 @@
 ---
-title: API Reference
+title: SDK Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
-  - shell
-  - ruby
-  - python
-  - javascript
-
-toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
+  - php
 
 includes:
   - errors
@@ -19,80 +12,112 @@ search: true
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
-
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
-
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+Welcome to the EMR4DW SDK documentation. Throughout this documentation you'll 
+find all the necessary information to get started with using the EMR4DW SDK. By general rule of thumb
+you'll be using the PHP SDK which will already be provided with the installation of EMR4DW.
 
 # Authentication
 
-> To authorize, use this code:
+Authentication with the EMR4DW SDK is **not** required. The only thing you'll need to do
+is make sure you send a request signature along with your requests.
 
-```ruby
-require 'kittn'
+The signature consists of the following:-
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+* The Clinic ID
+* The Clinic UID
+* The Clinic API Key
+* The Current Time
+
+Request signature generation is already provided within the EMR4DW SDK.
+
+```php
+<?php
+
+public function generateClientActionSignature($action = "show")
+{
+    return sha1($this->clinicID . $this->clinicUID . $action . (time() - 10) . $this->clinicApiKey);
+}
 ```
 
-```python
-import kittn
+The EMR4DW API uses API keys to allow access to the API. Each clinic is given a randomly generated API key which can be found in the `.env` file in `Laravel`.
 
-api = kittn.authorize('meowmeowmeow')
+All requests to the EMR4DW API **must** be signed. Signatures are only valid for 30 minutes and are only valid for the action the signature was generated for.
+
+This means that signatures generated for the endpoint `/clinics/1` will **not** be valid for the endpoint `/clinics/1/plugins` and must be regenerated for each resource requested.
+
+# Clinics
+
+## Get Clinic
+
+```php
+<?php
+
+Route::get('test', function (SDK\Clinic $clinic) {
+  return $clinic->get();
+})
 ```
 
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+> The above command returns JSON structured like this:
+
+```json
+{
+  "id": 1,
+  "name": "Hyderabad",
+  "created_at": "2019-03-28 17:30:24",
+  "updated_at": "2019-03-28 17:30:24",
+  "subdomain": "hyderabad",
+  "national_id": null,
+  "dhis2_id": null,
+  "national_pid_system": 0,
+  "address": null,
+  "postcode": null,
+  "country": null,
+  "timezone": null,
+  "website": null,
+  "level": null,
+  "notes": null,
+  "defaults": {
+    "id": 1,
+    "clinic_id": 1,
+    "language": "English",
+    "currency": null,
+    "flag": null,
+    "logo": null,
+    "pid_prefix": null,
+    "created_at": "2019-03-29 17:01:32",
+    "updated_at": "2019-03-29 17:01:32"
+  },
+  "contacts": [],
+  "plugins": []
+}
 ```
 
-```javascript
-const kittn = require('kittn');
+This endpoint retrieves information about the given clinic.
 
-let api = kittn.authorize('meowmeowmeow');
-```
+**_NOTE:_** There is no way of retrieving information about a clinic other than the one making the request **through the EMR4DW SDK**. Even though this is bad practice, it cannot be stopped, so please refrain from using the API in this way. Clinics should not directly be sharing information.
 
-> Make sure to replace `meowmeowmeow` with your API key.
+### HTTP Request
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+`GET https://console.emr4dw.org/api/clinics/1`
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+### Query Parameters
 
-`Authorization: meowmeowmeow`
+Parameter | Required | Description
+--------- | ------- | -----------
+signature | true | The request signature must be present to get a valid API response.
 
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+<aside class="success">
+<strong>Remember</strong> — All requests to the EMR4DW API <strong>must</strong> include a request signature!
 </aside>
 
-# Kittens
+## Get plugins available for a clinic
 
-## Get All Kittens
+```php
+<?php
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
+Route::get('test', function (SDK\Clinic $clinic) {
+  return $clinic->plugins();
+})
 ```
 
 > The above command returns JSON structured like this:
@@ -101,139 +126,71 @@ let kittens = api.kittens.get();
 [
   {
     "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
+    "clinic_id": 1,
+    "plugin_id": 1,
+    "created_at": "2019-03-28 17:30:56",
+    "updated_at": "2019-03-28 17:30:56",
+    "plugin": {
+      "id": 1,
+      "name": "Pharmacy Stock",
+      "description": "Adds pharmacy functionality to EMR4DW. Pharmacy item management, stock management & patient prescriptions.",
+      "namespace": "PharmacyStock",
+      "version": "0.2",
+      "created_at": "2019-03-28 20:12:11",
+      "updated_at": "2019-03-28 20:12:11",
+      "downloadUri": "/api/plugins/PharmacyStock"
+    }
   }
 ]
 ```
 
-This endpoint retrieves all kittens.
+This endpoint retrieves plugins available for the given clinic.
 
 ### HTTP Request
 
-`GET http://example.com/api/kittens`
+`GET https://console.emr4dw.org/api/clinic/1/plugins`
 
-### Query Parameters
+### URL Parameters
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+Parameter | Required | Description
+--------- | ----------- | -----------
+Signature | true | The request signature must be present to get a valid API response.
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
+## Get contacts for a clinic
 
-## Get a Specific Kitten
+```php
+<?php
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
+Route::get('test', function (SDK\Clinic $clinic) {
+  return $clinic->contacts();
+})
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
+[
+  {
+    "id": 2,
+    "clinic_id": 1,
+    "name": "Bass Stewart",
+    "phone": null,
+    "email": "bass.stewart@onyxweb.co.uk",
+    "created_at": "2019-03-29 17:02:12",
+    "updated_at": "2019-03-29 17:02:12"
+  }
+]
 ```
 
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+This endpoint retrieves contacts for the specified clinic.
 
 ### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+`GET https://console.emr4dw.org/api/clinics/1/contacts`
 
 ### URL Parameters
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -X DELETE
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "deleted" : ":("
-}
-```
-
-This endpoint deletes a specific kitten.
-
-### HTTP Request
-
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
+Parameter | Required | Description
+--------- | ----------- | -----------
+Signature | true | The request signature must be present to get a valid API response.
 
