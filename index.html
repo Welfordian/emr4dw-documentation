@@ -257,10 +257,12 @@
         <h1 id='introduction'>Introduction</h1>
 <p>Welcome to the EMR4DW SDK documentation. Throughout this documentation you&#39;ll 
 find all the necessary information to get started with using the EMR4DW SDK. By general rule of thumb
-you&#39;ll be using the PHP SDK which will already be provided with the installation of EMR4DW.</p>
+you&#39;ll be using the PHP SDK which will already be provided with the installation of EMR4DW. </p>
+
+<p>However, though it is discouraged, you may directly access the API.</p>
 <h1 id='authentication'>Authentication</h1>
-<p>Authentication with the EMR4DW SDK is <strong>not</strong> required. The only thing you&#39;ll need to do
-is make sure you send a request signature along with your requests.</p>
+<p>Authentication with the EMR4DW SDK (in the traditional way) is <strong>not</strong> required. The only thing you&#39;ll need to do
+is make sure you send a signature along with your requests.</p>
 
 <p>The signature consists of the following:-</p>
 
@@ -279,11 +281,15 @@ is make sure you send a request signature along with your requests.</p>
     <span class="k">return</span> <span class="nb">sha1</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">clinicID</span> <span class="o">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">clinicUID</span> <span class="o">.</span> <span class="nv">$action</span> <span class="o">.</span> <span class="p">(</span><span class="nb">time</span><span class="p">()</span> <span class="o">-</span> <span class="mi">10</span><span class="p">)</span> <span class="o">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">clinicApiKey</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
-<p>The EMR4DW API uses API keys to allow access to the API. Each clinic is given a randomly generated API key which can be found in the <code>.env</code> file in <code>Laravel</code>.</p>
+<p>The EMR4DW API does not use API keys in the normal way. Each clinic is given a randomly generated API key which can be found in the <code>.env</code> file in <code>Laravel</code> and is used <strong>only</strong> to sign request signatures.</p>
 
 <p>All requests to the EMR4DW API <strong>must</strong> be signed. Signatures are only valid for 30 minutes and are only valid for the action the signature was generated for.</p>
 
 <p>This means that signatures generated for the endpoint <code>/clinics/1</code> will <strong>not</strong> be valid for the endpoint <code>/clinics/1/plugins</code> and must be regenerated for each resource requested.</p>
+
+<p>This also means that signatures generated for the endpoint <code>/clinics/1</code> at <code>12:00 PM</code> will only be valid until <code>12:30 PM</code>.</p>
+
+<p>The time signatures are valid is subject to change and each request should use a freshly generated signature.</p>
 <h1 id='clinics'>Clinics</h1><h2 id='get-clinic'>Get Clinic</h2><pre class="highlight php tab-php"><code><span class="cp">&lt;?php</span>
 
 <span class="nx">Route</span><span class="o">::</span><span class="na">get</span><span class="p">(</span><span class="s1">'test'</span><span class="p">,</span> <span class="k">function</span> <span class="p">(</span><span class="nx">SDK\Clinic</span> <span class="nv">$clinic</span><span class="p">)</span> <span class="p">{</span>
@@ -326,7 +332,7 @@ is make sure you send a request signature along with your requests.</p>
 </span></code></pre>
 <p>This endpoint retrieves information about the given clinic.</p>
 
-<p><strong><em>NOTE:</em></strong> There is no way of retrieving information about a clinic other than the one making the request <strong>through the EMR4DW SDK</strong>. Even though this is bad practice, it cannot be stopped, so please refrain from using the API in this way. Clinics should not directly be sharing information.</p>
+<p><strong><em>NOTE:</em></strong> There is no way of retrieving information about a clinic other than the one making the request <strong>through the EMR4DW SDK</strong>. You may create your own request to the ERM4DW API, but this is generally bad practice, so please refrain from using the API in this way. Clinics should not directly be sharing information with each other.</p>
 <h3 id='http-request'>HTTP Request</h3>
 <p><code>GET https://console.emr4dw.org/api/clinics/1</code></p>
 <h3 id='query-parameters'>Query Parameters</h3>
@@ -339,12 +345,12 @@ is make sure you send a request signature along with your requests.</p>
 </thead><tbody>
 <tr>
 <td>signature</td>
-<td>true</td>
+<td>Yes</td>
 <td>The request signature must be present to get a valid API response.</td>
 </tr>
 </tbody></table>
 
-<aside class="success">
+<aside class="warning">
 <strong>Remember</strong> — All requests to the EMR4DW API <strong>must</strong> include a request signature!
 </aside>
 <h2 id='get-plugins-available-for-a-clinic'>Get plugins available for a clinic</h2><pre class="highlight php tab-php"><code><span class="cp">&lt;?php</span>
@@ -389,7 +395,7 @@ is make sure you send a request signature along with your requests.</p>
 </thead><tbody>
 <tr>
 <td>Signature</td>
-<td>true</td>
+<td>Yes</td>
 <td>The request signature must be present to get a valid API response.</td>
 </tr>
 </tbody></table>
@@ -427,7 +433,7 @@ is make sure you send a request signature along with your requests.</p>
 </thead><tbody>
 <tr>
 <td>Signature</td>
-<td>true</td>
+<td>Yes</td>
 <td>The request signature must be present to get a valid API response.</td>
 </tr>
 </tbody></table>
