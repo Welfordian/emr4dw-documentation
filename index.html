@@ -456,16 +456,16 @@ The API will generally <strong>always</strong> respond with an <code>HTTP Status
 </tr>
 </thead><tbody>
 <tr>
-<td>SIGNATURE_REQUIRED</td>
+<td><code>SIGNATURE_REQUIRED</code></td>
 <td>The required <code>signature</code> parameter is missing from the request.</td>
 </tr>
 <tr>
-<td>SIGNATURE_MISMATCH</td>
-<td>The signature provided does not match the signature required for the requested resource.</td>
+<td><code>SIGNATURE_MISMATCH</code></td>
+<td>The <code>signature</code> provided does not match the <code>signature</code> required for the requested resource.</td>
 </tr>
 <tr>
-<td>RELATIONSHIP_MISSING</td>
-<td>The requested relationship does not exist for the given resource.</td>
+<td><code>RELATIONSHIP_MISSING</code></td>
+<td>The requested <code>relationship</code> does not exist for the given resource.</td>
 </tr>
 </tbody></table>
 <h2 id='server-errors'>Server Errors</h2>
@@ -476,11 +476,11 @@ The API will generally <strong>always</strong> respond with an <code>HTTP Status
 </tr>
 </thead><tbody>
 <tr>
-<td>500</td>
+<td><code>500</code></td>
 <td>Internal Server Error -- We had a problem with our server. Try again later.</td>
 </tr>
 <tr>
-<td>503</td>
+<td><code>503</code></td>
 <td>Service Unavailable -- We&#39;re temporarily offline for maintenance. Please try again later.</td>
 </tr>
 </tbody></table>
