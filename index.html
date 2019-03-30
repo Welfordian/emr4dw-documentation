@@ -239,6 +239,9 @@
               </ul>
           </li>
           <li>
+            <a href="#rate-limiting" class="toc-h1 toc-link" data-title="Rate Limiting">Rate Limiting</a>
+          </li>
+          <li>
             <a href="#errors" class="toc-h1 toc-link" data-title="Errors">Errors</a>
               <ul class="toc-list-h2">
                   <li>
@@ -437,7 +440,41 @@ is make sure you send a signature along with your requests.</p>
 <td>The request signature must be present to get a valid API response.</td>
 </tr>
 </tbody></table>
-<h1 id='errors'>Errors</h1>
+<h1 id='rate-limiting'>Rate Limiting</h1>
+<aside class="notice">
+Requests to the EMR4DW API are limited to 60 requests in any 1 minute period. 
+</aside>
+
+<p>EMR4DW API responses contain two important headers that should be noted.</p>
+
+<p>The <code>X-Rate-Limit</code> header shows you the total number of requests that can be made in any <code>1 Minute</code> period.</p>
+
+<p>The <code>X-RateLimit-Remaining</code> header shows you the total number of <em>remaining</em> requests that can be made in this <code>1 Minute</code> period before a <code>429 Too Many Requests</code> response is thrown.</p>
+
+<p>Once a rate limit has been hit, and the server is responding with a <code>429 Too Many Requests</code> response, the server will send 2 additional headers.</p>
+
+<p>The <code>retry-after</code> header shows you the total number of seconds to wait before sending another request.</p>
+
+<p>The <code>x-ratelimit-reset</code> header shows you a timestamp of when you may make another request.</p>
+
+<blockquote>
+<p>An example of the rate limiting headers sent by the server</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"x-ratelimit-limit"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"60"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"x-ratelimit-remaining"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"0"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"retry-after"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"31"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"x-ratelimit-reset"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">" 1553985940"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h1 id='errors'>Errors</h1>
 <aside class="notice">
 The API will generally <strong>always</strong> respond with an <code>HTTP Status 200</code>.
 </aside>
@@ -475,6 +512,10 @@ The API will generally <strong>always</strong> respond with an <code>HTTP Status
 <th>Meaning</th>
 </tr>
 </thead><tbody>
+<tr>
+<td><code>429</code></td>
+<td>Rate Limit Error -- You sent too many requests. Please look at the <a href="#rate-limiting">Rate Limiting Section</a>.</td>
+</tr>
 <tr>
 <td><code>500</code></td>
 <td>Internal Server Error -- We had a problem with our server. Please try again later.</td>
