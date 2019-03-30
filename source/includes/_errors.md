@@ -18,13 +18,14 @@ If an error occurs, the `errors` property will be available in the response.
 
 Error Code | Meaning
 --- | ---
-SIGNATURE_REQUIRED | The required `signature` parameter is missing from the request.
-SIGNATURE_MISMATCH | The signature provided does not match the signature required for the requested resource.
-RELATIONSHIP_MISSING | The requested relationship does not exist for the given resource.
+`SIGNATURE_REQUIRED` | The required `signature` parameter is missing from the request.
+`SIGNATURE_MISMATCH` | The `signature` provided does not match the `signature` required for the requested resource.
+`RELATIONSHIP_MISSING` | The requested `relationship` does not exist for the given resource.
 
 ## Server Errors
 
 Error Code | Meaning
 --- | ---
-500 | Internal Server Error -- We had a problem with our server. Try again later.
-503 | Service Unavailable -- We're temporarily offline for maintenance. Please try again later.
+`429` | Rate Limit Error -- You sent too many requests. Please look at the <a href="#rate-limiting">Rate Limiting Section</a>.
+`500` | Internal Server Error -- We had a problem with our server. Please try again later.
+`503` | Service Unavailable -- We're temporarily offline for maintenance. Please try again later.
