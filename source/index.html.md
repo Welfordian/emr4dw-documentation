@@ -38,7 +38,7 @@ Request signature generation is already provided within the EMR4DW SDK.
 
 public function generateClientActionSignature($action = "show")
 {
-    return sha1($this->clinicID . $this->clinicUID . $action . time() . $this->clinicApiKey);
+    return hash_hmac('sha256', $this->clinicID . $this->clinicUID . $action . (time()), $this->clinicApiKey);
 }
 ```
 
